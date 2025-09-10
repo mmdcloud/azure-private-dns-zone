@@ -2,8 +2,8 @@
 # Resource Group
 # -----------------------------
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-demo"
-  location = "eastus"
+  name     = "rg"
+  location = var.location
 }
 
 # -----------------------------
@@ -58,6 +58,18 @@ resource "azurerm_network_security_group" "nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "allow-ssh"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # -----------------------------
@@ -68,7 +80,7 @@ resource "azurerm_public_ip" "pip" {
   name                = "vm${count.index + 1}-pip"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
 }
 
 # -----------------------------
@@ -104,13 +116,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1s"
-  admin_username      = "azureuser"
-
+  admin_username      = "madmax"
+  disable_password_authentication = false
   network_interface_ids = [
     azurerm_network_interface.nic[count.index].id,
   ]
 
-  admin_password = "P@ssword12345!" # Not for production!
+  admin_password = "Mohitdixit12345!"
 
   os_disk {
     caching              = "ReadWrite"
